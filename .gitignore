@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# personal resume data (keep example only)
+/src/data/resumes/*
+!/src/data/resumes/example.json
