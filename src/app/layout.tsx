@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Resume - Jo Won-ho',
-  description: 'Prossional Resume of Jo Won-ho',
+  title: 'Resume',
+  description: 'Prossional Resume'
 };
 
 import { Toaster } from 'sonner';
