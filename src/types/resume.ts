@@ -42,4 +42,5 @@ export interface SectionItem {
   links?: { label: string; url: string }[];
   location?: string;
   images?: string[]; // For project screenshots if needed
+  subItems?: SectionItem[]; // Nested items (e.g. projects under a company)
 }

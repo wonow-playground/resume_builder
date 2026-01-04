@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Clock, FileText, Trash2 } from 'lucide-react';
+import { Plus, Clock, Trash2 } from 'lucide-react';
 import styles from './ResumeListSidebar.module.css';
-import { ResumeConfig } from '@/types/resume';
+
 import { notify } from '@/utils/notify';
 import { InputModal } from './InputModal';
 
@@ -88,7 +88,7 @@ export const ResumeListSidebar: React.FC<ResumeListSidebarProps> = ({ currentId,
       fetchResumes();
       onSelect(data.id);
       notify.success('이력서 생성 완료', `"${title}" 생성되었습니다.`);
-    } catch (err) {
+    } catch {
       notify.error('이력서 생성 실패', '다시 시도해주세요.');
     }
   };
@@ -102,7 +102,7 @@ export const ResumeListSidebar: React.FC<ResumeListSidebarProps> = ({ currentId,
         fetchResumes();
         if (onDelete) onDelete(id);
         notify.success('이력서 삭제 완료');
-      } catch (err) {
+      } catch {
         notify.error('이력서 삭제 실패', '다시 시도해주세요.');
       }
     });

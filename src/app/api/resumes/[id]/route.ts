@@ -21,7 +21,7 @@ export async function GET(req: Request, { params }: Context) {
     const content = fs.readFileSync(filePath, 'utf8');
     const data = JSON.parse(content);
     return NextResponse.json(data);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to retrieve resume' }, { status: 500 });
   }
 }
@@ -41,7 +41,7 @@ export async function PUT(req: Request, { params }: Context) {
 
     fs.writeFileSync(filePath, JSON.stringify(updatedData, null, 2));
     return NextResponse.json(updatedData);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update resume' }, { status: 500 });
   }
 }
@@ -56,7 +56,7 @@ export async function DELETE(req: Request, { params }: Context) {
     }
     
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete resume' }, { status: 500 });
   }
 }

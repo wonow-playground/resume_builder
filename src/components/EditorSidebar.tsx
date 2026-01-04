@@ -1,10 +1,24 @@
-
-import React, { useState } from 'react';
-import { ResumeConfig, SectionItem } from '@/types/resume';
-import { ResumeStyle, ThemeCategory, SectionTheme } from '@/types/style';
-import { ChevronDown, ChevronRight, Plus, Trash2, Save, Layout, Type, Sun, Moon, Eye, EyeOff, RefreshCw, GripVertical } from 'lucide-react';
-import styles from './EditorSidebar.module.css';
-import { notify } from '@/utils/notify';
+import React, { useState } from "react";
+import { ResumeConfig, SectionItem, Section } from "@/types/resume";
+import { ResumeStyle, ThemeCategory, SectionTheme } from "@/types/style";
+import {
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Trash2,
+  Save,
+  Layout,
+  Type,
+  Sun,
+  Moon,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  GripVertical,
+} from "lucide-react";
+import { TechStackInput } from "@/components/ui";
+import styles from "./EditorSidebar.module.css";
+import { notify } from "@/utils/notify";
 import {
   DndContext,
   closestCenter,
@@ -13,27 +27,37 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Sortable Section Item Component
 interface SortableSectionProps {
-  section: any;
+  section: Section;
   openSection: string | null;
   toggleSection: (id: string) => void;
   toggleSectionVisibility: (id: string) => void;
   handleSectionTitleChange: (sectionId: string, title: string) => void;
   addSectionItem: (id: string) => void;
   removeSectionItem: (sectionId: string, itemId: string) => void;
-  handleSectionItemChange: (sectionId: string, itemId: string, field: keyof SectionItem, value: any) => void;
-  handlePointChange: (sectionId: string, itemId: string, index: number, value: string) => void;
+  handleSectionItemChange: (
+    sectionId: string,
+    itemId: string,
+    field: keyof SectionItem,
+    value: string | string[] | undefined
+  ) => void;
+  handlePointChange: (
+    sectionId: string,
+    itemId: string,
+    index: number,
+    value: string
+  ) => void;
   addPoint: (sectionId: string, itemId: string) => void;
   removePoint: (sectionId: string, itemId: string, index: number) => void;
   onSave: () => void;
@@ -70,25 +94,57 @@ const SortableSection: React.FC<SortableSectionProps> = ({
 
   return (
     <div ref={setNodeRef} style={style} className={styles.section}>
-      <div className={styles.sectionHeader} onClick={() => toggleSection(section.id)}>
+      <div
+        className={styles.sectionHeader}
+        onClick={() => toggleSection(section.id)}
+      >
         <div className={styles.sectionHeaderContent}>
-          <div {...attributes} {...listeners} style={{ cursor: 'grab', display: 'flex', alignItems: 'center', marginRight: '4px' }}>
-            <GripVertical size={16} style={{ color: '#9ca3af' }} />
+          <div
+            {...attributes}
+            {...listeners}
+            style={{
+              cursor: "grab",
+              display: "flex",
+              alignItems: "center",
+              marginRight: "4px",
+            }}
+          >
+            <GripVertical size={16} style={{ color: "#9ca3af" }} />
           </div>
-          {openSection === section.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          <span style={{ opacity: section.visible === false ? 0.5 : 1 }}>{section.title}</span>
+          {openSection === section.id ? (
+            <ChevronDown size={16} />
+          ) : (
+            <ChevronRight size={16} />
+          )}
+          <span style={{ opacity: section.visible === false ? 0.5 : 1 }}>
+            {section.title}
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
           <button
-            onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(section.id); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSectionVisibility(section.id);
+            }}
             className={styles.addBtn}
             title={section.visible === false ? "섹션 표시" : "섹션 숨기기"}
-            style={{ opacity: 1, color: section.visible === false ? '#9ca3af' : '#2563eb' }}
+            style={{
+              opacity: 1,
+              color: section.visible === false ? "#9ca3af" : "#2563eb",
+            }}
           >
-            {section.visible === false ? <EyeOff size={16} /> : <Eye size={16} />}
+            {section.visible === false ? (
+              <EyeOff size={16} />
+            ) : (
+              <Eye size={16} />
+            )}
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); addSectionItem(section.id); onSave(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              addSectionItem(section.id);
+              onSave();
+            }}
             className={styles.addBtn}
             title="항목 추가"
           >
@@ -100,14 +156,22 @@ const SortableSection: React.FC<SortableSectionProps> = ({
       {openSection === section.id && (
         <div className={styles.expandedContent}>
           {/* Section Title Editor */}
-          <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+          <div
+            style={{
+              marginBottom: "1rem",
+              paddingBottom: "1rem",
+              borderBottom: "1px solid #e5e7eb",
+            }}
+          >
             <label className={styles.label}>섹션 제목</label>
             <input
               className={styles.input}
               placeholder="섹션 제목 (예: Projects, Experience)"
               value={section.title}
-              onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
-              style={{ marginTop: '0.25rem' }}
+              onChange={(e) =>
+                handleSectionTitleChange(section.id, e.target.value)
+              }
+              style={{ marginTop: "0.25rem" }}
             />
           </div>
 
@@ -121,52 +185,119 @@ const SortableSection: React.FC<SortableSectionProps> = ({
                 <Trash2 size={16} />
               </button>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.75rem",
+                }}
+              >
                 <input
                   className={styles.input}
                   placeholder="제목 (예: 프로젝트명)"
                   value={item.title}
-                  onChange={(e) => handleSectionItemChange(section.id, item.id, 'title', e.target.value)}
+                  onChange={(e) =>
+                    handleSectionItemChange(
+                      section.id,
+                      item.id,
+                      "title",
+                      e.target.value
+                    )
+                  }
                 />
                 <div className={styles.row}>
                   <input
                     className={styles.input}
                     placeholder="부제 (예: 역할/팀)"
-                    value={item.subtitle || ''}
-                    onChange={(e) => handleSectionItemChange(section.id, item.id, 'subtitle', e.target.value)}
+                    value={item.subtitle || ""}
+                    onChange={(e) =>
+                      handleSectionItemChange(
+                        section.id,
+                        item.id,
+                        "subtitle",
+                        e.target.value
+                      )
+                    }
                   />
                   <input
                     className={styles.input}
                     placeholder="기간 (예: 2024.01 - 2024.12)"
-                    value={item.date || ''}
-                    onChange={(e) => handleSectionItemChange(section.id, item.id, 'date', e.target.value)}
+                    value={item.date || ""}
+                    onChange={(e) =>
+                      handleSectionItemChange(
+                        section.id,
+                        item.id,
+                        "date",
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
                 <textarea
                   className={styles.textarea}
                   placeholder="설명 (**굵게** 지원)"
-                  value={item.description || ''}
-                  onChange={(e) => handleSectionItemChange(section.id, item.id, 'description', e.target.value)}
+                  value={item.description || ""}
+                  onChange={(e) =>
+                    handleSectionItemChange(
+                      section.id,
+                      item.id,
+                      "description",
+                      e.target.value
+                    )
+                  }
                 />
 
                 {/* Points */}
                 <div>
-                  <label className={styles.label} style={{ marginBottom: '0.25rem' }}>
+                  <label
+                    className={styles.label}
+                    style={{ marginBottom: "0.25rem" }}
+                  >
                     상세 설명 (Points)
-                    <button onClick={() => addPoint(section.id, item.id)} style={{ color: '#3b82f6', border: 'none', background: 'none', cursor: 'pointer' }}>+ 추가</button>
+                    <button
+                      onClick={() => addPoint(section.id, item.id)}
+                      style={{
+                        color: "#3b82f6",
+                        border: "none",
+                        background: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      + 추가
+                    </button>
                   </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                    }}
+                  >
                     {(item.points || []).map((point, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div key={idx} style={{ display: "flex", gap: "0.5rem" }}>
                         <textarea
                           className={styles.textarea}
-                          style={{ height: '4rem' }}
+                          style={{ height: "4rem" }}
                           value={point}
-                          onChange={(e) => handlePointChange(section.id, item.id, idx, e.target.value)}
+                          onChange={(e) =>
+                            handlePointChange(
+                              section.id,
+                              item.id,
+                              idx,
+                              e.target.value
+                            )
+                          }
                         />
                         <button
                           onClick={() => removePoint(section.id, item.id, idx)}
-                          style={{ color: '#9ca3af', border: 'none', background: 'none', cursor: 'pointer', alignSelf: 'start', marginTop: '0.5rem' }}
+                          style={{
+                            color: "#9ca3af",
+                            border: "none",
+                            background: "none",
+                            cursor: "pointer",
+                            alignSelf: "start",
+                            marginTop: "0.5rem",
+                          }}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -177,20 +308,30 @@ const SortableSection: React.FC<SortableSectionProps> = ({
 
                 {/* Tech Stack */}
                 <div>
-                  <label className={styles.label}>기술 스택 (쉼표로 구분)</label>
-                  <input
+                  <label className={styles.label}>
+                    기술 스택 (쉼표로 구분)
+                  </label>
+                  <TechStackInput
+                    value={item.techStack}
+                    onChange={(techStackArray: string[]) =>
+                      handleSectionItemChange(
+                        section.id,
+                        item.id,
+                        "techStack",
+                        techStackArray
+                      )
+                    }
                     className={styles.input}
-                    placeholder="Java, Spring Boot, React 등"
-                    value={item.techStack?.join(', ') || ''}
-                    onChange={(e) => handleSectionItemChange(section.id, item.id, 'techStack', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                    style={{ marginTop: '0.25rem' }}
+                    style={{ marginTop: "0.25rem" }}
                   />
                 </div>
               </div>
             </div>
           ))}
           <button
-            onClick={() => { addSectionItem(section.id); }}
+            onClick={() => {
+              addSectionItem(section.id);
+            }}
             className={styles.newItemBtn}
           >
             + 새 항목 추가
@@ -222,9 +363,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   isDarkMode,
   onThemeToggle,
 }) => {
-  const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
-  const [openSection, setOpenSection] = useState<string | null>('profile');
-  const [activeCategory, setActiveCategory] = useState<ThemeCategory>('profile');
+  const [activeTab, setActiveTab] = useState<"content" | "design">("content");
+  const [openSection, setOpenSection] = useState<string | null>("profile");
+  const [activeCategory, setActiveCategory] =
+    useState<ThemeCategory>("profile");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -240,7 +382,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   const toggleSectionVisibility = (sectionId: string) => {
     const newSections = data.sections.map((sec) => {
       if (sec.id !== sectionId) return sec;
-      return { ...sec, visible: sec.visible === undefined ? false : !sec.visible };
+      return {
+        ...sec,
+        visible: sec.visible === undefined ? false : !sec.visible,
+      };
     });
     onDataChange({ ...data, sections: newSections });
   };
@@ -249,31 +394,36 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     const newTheme = { ...styleConfig.theme };
     newTheme[activeCategory] = {
       ...newTheme[activeCategory],
-      [field]: value
+      [field]: value,
     };
     onStyleChange({ ...styleConfig, theme: newTheme });
   };
 
   const handleApplyToAll = () => {
-    const categoryName = activeCategory === 'profile' 
-      ? '프로필' 
-      : (data.sections.find(s => s.type === activeCategory)?.title || activeCategory);
-      
-    notify.confirm(`현재 '${categoryName}' 섹션의 디자인 설정을 다른 모든 섹션에도 동일하게 적용하시겠습니까?`, () => {
-      const currentT = styleConfig.theme[activeCategory];
-      onStyleChange({
-        ...styleConfig,
-        theme: {
-          global: { ...currentT },
-          profile: { ...currentT },
-          experience: { ...currentT },
-          project: { ...currentT },
-          education: { ...currentT },
-          activity: { ...currentT },
-        }
-      });
-      notify.success('전체 섹션에 디자인이 적용되었습니다.');
-    });
+    const categoryName =
+      activeCategory === "profile"
+        ? "프로필"
+        : data.sections.find((s) => s.type === activeCategory)?.title ||
+          activeCategory;
+
+    notify.confirm(
+      `현재 '${categoryName}' 섹션의 디자인 설정을 다른 모든 섹션에도 동일하게 적용하시겠습니까?`,
+      () => {
+        const currentT = styleConfig.theme[activeCategory];
+        onStyleChange({
+          ...styleConfig,
+          theme: {
+            global: { ...currentT },
+            profile: { ...currentT },
+            experience: { ...currentT },
+            project: { ...currentT },
+            education: { ...currentT },
+            activity: { ...currentT },
+          },
+        });
+        notify.success("전체 섹션에 디자인이 적용되었습니다.");
+      }
+    );
   };
 
   const currentTheme = styleConfig.theme[activeCategory];
@@ -303,7 +453,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     onDataChange({ ...data, sections: newSections });
   };
 
-  const handleSectionItemChange = (sectionId: string, itemId: string, field: keyof SectionItem, value: any) => {
+  const handleSectionItemChange = (
+    sectionId: string,
+    itemId: string,
+    field: keyof SectionItem,
+    value: string | string[] | undefined
+  ) => {
     const newSections = data.sections.map((sec) => {
       if (sec.id !== sectionId) return sec;
       return {
@@ -322,10 +477,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       if (sec.id !== sectionId) return sec;
       const newItem: SectionItem = {
         id: Date.now().toString(),
-        title: '새 항목',
-        subtitle: '',
-        date: '',
-        description: '',
+        title: "새 항목",
+        subtitle: "",
+        date: "",
+        description: "",
         points: [],
       };
       return { ...sec, items: [newItem, ...sec.items] };
@@ -334,17 +489,22 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   };
 
   const removeSectionItem = (sectionId: string, itemId: string) => {
-    notify.confirm('정말로 이 항목을 삭제하시겠습니까?', () => {
+    notify.confirm("정말로 이 항목을 삭제하시겠습니까?", () => {
       const newSections = data.sections.map((sec) => {
         if (sec.id !== sectionId) return sec;
         return { ...sec, items: sec.items.filter((i) => i.id !== itemId) };
       });
       onDataChange({ ...data, sections: newSections });
-      notify.success('항목이 삭제되었습니다.');
+      notify.success("항목이 삭제되었습니다.");
     });
   };
 
-  const handlePointChange = (sectionId: string, itemId: string, index: number, value: string) => {
+  const handlePointChange = (
+    sectionId: string,
+    itemId: string,
+    index: number,
+    value: string
+  ) => {
     const newSections = data.sections.map((sec) => {
       if (sec.id !== sectionId) return sec;
       return {
@@ -361,21 +521,24 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   };
 
   const addPoint = (sectionId: string, itemId: string) => {
-     const newSections = data.sections.map((sec) => {
+    const newSections = data.sections.map((sec) => {
       if (sec.id !== sectionId) return sec;
       return {
         ...sec,
         items: sec.items.map((item) => {
           if (item.id !== itemId) return item;
-          return { ...item, points: [...(item.points || []), '새 불렛 포인트'] };
+          return {
+            ...item,
+            points: [...(item.points || []), "새 불렛 포인트"],
+          };
         }),
       };
     });
     onDataChange({ ...data, sections: newSections });
-  }
+  };
 
   const removePoint = (sectionId: string, itemId: string, index: number) => {
-     const newSections = data.sections.map((sec) => {
+    const newSections = data.sections.map((sec) => {
       if (sec.id !== sectionId) return sec;
       return {
         ...sec,
@@ -388,7 +551,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       };
     });
     onDataChange({ ...data, sections: newSections });
-  }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -410,8 +573,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       {/* Header */}
       <div className={styles.header}>
         <h2 className={styles.title}>에디터</h2>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={onThemeToggle} className={styles.saveBtn} title="테마 변경">
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button
+            onClick={onThemeToggle}
+            className={styles.saveBtn}
+            title="테마 변경"
+          >
             {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
@@ -420,7 +587,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             className={styles.saveBtn}
           >
             <Save size={16} />
-            {isSaving ? '저장 중...' : '저장'}
+            {isSaving ? "저장 중..." : "저장"}
           </button>
         </div>
       </div>
@@ -428,78 +595,104 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       {/* Tabs */}
       <div className={styles.tabs}>
         <button
-          className={`${styles.tab} ${activeTab === 'content' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('content')}
+          className={`${styles.tab} ${
+            activeTab === "content" ? styles.tabActive : ""
+          }`}
+          onClick={() => setActiveTab("content")}
         >
           <Layout size={16} /> 내용 (Content)
         </button>
         <button
-           className={`${styles.tab} ${activeTab === 'design' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('design')}
+          className={`${styles.tab} ${
+            activeTab === "design" ? styles.tabActive : ""
+          }`}
+          onClick={() => setActiveTab("design")}
         >
           <Type size={16} /> 디자인 (Design)
         </button>
       </div>
 
       {/* Content Tab */}
-      {activeTab === 'content' && (
+      {activeTab === "content" && (
         <div className={styles.content}>
           {/* Profile Section */}
           <div className={styles.section}>
             <button
               className={styles.sectionHeader}
-              onClick={() => toggleSection('profile')}
+              onClick={() => toggleSection("profile")}
             >
               <span>프로필 (Profile)</span>
-              {openSection === 'profile' ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {openSection === "profile" ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
             </button>
-            
-            {openSection === 'profile' && (
+
+            {openSection === "profile" && (
               <div className={styles.formGroup}>
                 <input
                   className={styles.input}
                   placeholder="이름"
                   value={data.profile.name}
-                  onChange={(e) => handleProfileChange('name', e.target.value)}
+                  onChange={(e) => handleProfileChange("name", e.target.value)}
                 />
                 <input
                   className={styles.input}
                   placeholder="직군/역할 (예: 백엔드 개발자)"
                   value={data.profile.role}
-                  onChange={(e) => handleProfileChange('role', e.target.value)}
+                  onChange={(e) => handleProfileChange("role", e.target.value)}
                 />
-                 <input
+                <input
                   className={styles.input}
                   placeholder="프로필 이미지 URL (예: /me.jpg)"
-                  value={data.profile.image || ''}
-                  onChange={(e) => handleProfileChange('image', e.target.value)}
+                  value={data.profile.image || ""}
+                  onChange={(e) => handleProfileChange("image", e.target.value)}
                 />
                 <textarea
                   className={styles.textarea}
                   placeholder="자기소개"
                   value={data.profile.intro}
-                  onChange={(e) => handleProfileChange('intro', e.target.value)}
+                  onChange={(e) => handleProfileChange("intro", e.target.value)}
                 />
-                <div style={{ paddingTop: '0.5rem', borderTop: '1px solid #f3f4f6' }}>
+                <div
+                  style={{
+                    paddingTop: "0.5rem",
+                    borderTop: "1px solid #f3f4f6",
+                  }}
+                >
                   <p className={styles.label}>연락처</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      marginTop: "0.5rem",
+                    }}
+                  >
                     <input
                       className={styles.input}
                       placeholder="이메일"
-                      value={data.profile.contact.email || ''}
-                      onChange={(e) => handleContactChange('email', e.target.value)}
+                      value={data.profile.contact.email || ""}
+                      onChange={(e) =>
+                        handleContactChange("email", e.target.value)
+                      }
                     />
                     <input
                       className={styles.input}
                       placeholder="전화번호"
-                      value={data.profile.contact.phone || ''}
-                      onChange={(e) => handleContactChange('phone', e.target.value)}
+                      value={data.profile.contact.phone || ""}
+                      onChange={(e) =>
+                        handleContactChange("phone", e.target.value)
+                      }
                     />
                     <input
                       className={styles.input}
                       placeholder="Github URL"
-                      value={data.profile.contact.github || ''}
-                      onChange={(e) => handleContactChange('github', e.target.value)}
+                      value={data.profile.contact.github || ""}
+                      onChange={(e) =>
+                        handleContactChange("github", e.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -540,130 +733,178 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       )}
 
       {/* Design Tab */}
-      {activeTab === 'design' && (
+      {activeTab === "design" && (
         <div className={styles.content}>
-           {/* Category Selector */}
-           <div className={styles.formGroup} style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
-              <label className={styles.label}>설정 대상 (Target)</label>
-              <select 
-                className={styles.input}
-                value={activeCategory}
-                onChange={(e) => setActiveCategory(e.target.value as ThemeCategory)}
-              >
-                <option value="profile">프로필 (Profile)</option>
-                {data.sections.map((section) => (
-                  <option key={section.id} value={section.type}>
-                    {section.title}
-                  </option>
-                ))}
-              </select>
-              
-              <button 
-                onClick={handleApplyToAll}
-                className={styles.newItemBtn}
-                style={{ marginTop: '0.5rem', fontSize: '0.8rem', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                title="Apply these settings to all other sections"
-              >
-                 <RefreshCw size={14} /> 현재 설정을 모든 섹션에 적용하기
-              </button>
-           </div>
+          {/* Category Selector */}
+          <div
+            className={styles.formGroup}
+            style={{
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "1rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            <label className={styles.label}>설정 대상 (Target)</label>
+            <select
+              className={styles.input}
+              value={activeCategory}
+              onChange={(e) =>
+                setActiveCategory(e.target.value as ThemeCategory)
+              }
+            >
+              <option value="profile">프로필 (Profile)</option>
+              {data.sections.map((section) => (
+                <option key={section.id} value={section.type}>
+                  {section.title}
+                </option>
+              ))}
+            </select>
 
-          <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>헤더 크기 (이름/섹션명)</label>
-                 <span className={styles.sliderValue}>{currentTheme.headerSize}rem</span>
-             </div>
-             <input
-               type="range"
-               min="1"
-               max="4"
-               step="0.1"
-               value={currentTheme.headerSize}
-               onChange={(e) => handleThemeChange('headerSize', Number(e.target.value))}
-               className={styles.slider}
-             />
+            <button
+              onClick={handleApplyToAll}
+              className={styles.newItemBtn}
+              style={{
+                marginTop: "0.5rem",
+                fontSize: "0.8rem",
+                padding: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+              }}
+              title="Apply these settings to all other sections"
+            >
+              <RefreshCw size={14} /> 현재 설정을 모든 섹션에 적용하기
+            </button>
           </div>
 
           <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>항목 제목 크기</label>
-                 <span className={styles.sliderValue}>{currentTheme.itemTitleSize}rem</span>
-             </div>
-              <input
-               type="range"
-               min="0.8"
-               max="2"
-               step="0.05"
-               value={currentTheme.itemTitleSize}
-               onChange={(e) => handleThemeChange('itemTitleSize', Number(e.target.value))}
-               className={styles.slider}
-             />
-          </div>
-
-           <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>부제/메타 크기</label>
-                 <span className={styles.sliderValue}>{currentTheme.subtitleSize}rem</span>
-             </div>
-              <input
-               type="range"
-               min="0.7"
-               max="1.5"
-               step="0.05"
-               value={currentTheme.subtitleSize}
-               onChange={(e) => handleThemeChange('subtitleSize', Number(e.target.value))}
-               className={styles.slider}
-             />
-          </div>
-
-           <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>본문 크기</label>
-                 <span className={styles.sliderValue}>{currentTheme.textSize}rem</span>
-             </div>
-              <input
-               type="range"
-               min="0.6"
-               max="1.2"
-               step="0.025"
-               value={currentTheme.textSize}
-               onChange={(e) => handleThemeChange('textSize', Number(e.target.value))}
-               className={styles.slider}
-             />
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>
+                헤더 크기 (이름/섹션명)
+              </label>
+              <span className={styles.sliderValue}>
+                {currentTheme.headerSize}rem
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="4"
+              step="0.1"
+              value={currentTheme.headerSize}
+              onChange={(e) =>
+                handleThemeChange("headerSize", Number(e.target.value))
+              }
+              className={styles.slider}
+            />
           </div>
 
           <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>내부 간격 (Spacing)</label>
-                 <span className={styles.sliderValue}>{currentTheme.spacing}x</span>
-             </div>
-              <input
-               type="range"
-               min="0.5"
-               max="2"
-               step="0.1"
-               value={currentTheme.spacing}
-               onChange={(e) => handleThemeChange('spacing', Number(e.target.value))}
-               className={styles.slider}
-             />
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>항목 제목 크기</label>
+              <span className={styles.sliderValue}>
+                {currentTheme.itemTitleSize}rem
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.8"
+              max="2"
+              step="0.05"
+              value={currentTheme.itemTitleSize}
+              onChange={(e) =>
+                handleThemeChange("itemTitleSize", Number(e.target.value))
+              }
+              className={styles.slider}
+            />
           </div>
 
-          <hr style={{ margin: '1rem 0', borderColor: '#e5e7eb' }} />
-          
           <div className={styles.sliderGroup}>
-             <div className={styles.sliderRow}>
-                 <label className={styles.sliderLabel}>섹션 간 간격 (Global)</label>
-                 <span className={styles.sliderValue}>{styleConfig.sectionSpacing}x</span>
-             </div>
-              <input
-               type="range"
-               min="0.5"
-               max="2"
-               step="0.1"
-               value={styleConfig.sectionSpacing}
-               onChange={(e) => onStyleChange({ ...styleConfig, sectionSpacing: Number(e.target.value) })}
-               className={styles.slider}
-             />
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>부제/메타 크기</label>
+              <span className={styles.sliderValue}>
+                {currentTheme.subtitleSize}rem
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.7"
+              max="1.5"
+              step="0.05"
+              value={currentTheme.subtitleSize}
+              onChange={(e) =>
+                handleThemeChange("subtitleSize", Number(e.target.value))
+              }
+              className={styles.slider}
+            />
+          </div>
+
+          <div className={styles.sliderGroup}>
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>본문 크기</label>
+              <span className={styles.sliderValue}>
+                {currentTheme.textSize}rem
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.6"
+              max="1.2"
+              step="0.025"
+              value={currentTheme.textSize}
+              onChange={(e) =>
+                handleThemeChange("textSize", Number(e.target.value))
+              }
+              className={styles.slider}
+            />
+          </div>
+
+          <div className={styles.sliderGroup}>
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>내부 간격 (Spacing)</label>
+              <span className={styles.sliderValue}>
+                {currentTheme.spacing}x
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value={currentTheme.spacing}
+              onChange={(e) =>
+                handleThemeChange("spacing", Number(e.target.value))
+              }
+              className={styles.slider}
+            />
+          </div>
+
+          <hr style={{ margin: "1rem 0", borderColor: "#e5e7eb" }} />
+
+          <div className={styles.sliderGroup}>
+            <div className={styles.sliderRow}>
+              <label className={styles.sliderLabel}>
+                섹션 간 간격 (Global)
+              </label>
+              <span className={styles.sliderValue}>
+                {styleConfig.sectionSpacing}x
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value={styleConfig.sectionSpacing}
+              onChange={(e) =>
+                onStyleChange({
+                  ...styleConfig,
+                  sectionSpacing: Number(e.target.value),
+                })
+              }
+              className={styles.slider}
+            />
           </div>
         </div>
       )}
