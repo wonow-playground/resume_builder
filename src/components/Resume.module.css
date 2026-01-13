@@ -42,7 +42,7 @@
   }
 
   .profileImage {
-    background-color: white !important;
+    box-shadow: none !important;
   }
 
   /* Ensure page breaks don't cut items */
