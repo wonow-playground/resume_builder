@@ -41,6 +41,10 @@
     width: 100%;
   }
 
+  .profileImage {
+    background-color: white !important;
+  }
+
   /* Ensure page breaks don't cut items */
   .item {
     /* Allow breaking inside items if they are too long */
@@ -69,6 +73,7 @@
   border-radius: var(--radius);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  background-color: white; /* Prevent gray background in print/PDF */
 }
 
 .name {
